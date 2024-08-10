@@ -1,7 +1,6 @@
 '''A collection of my hand-written functions which can help save time and energy while coding.
-   Author - CodeKage
 '''
-#All relevant dependencies
+#Importing relevant dependencies
 from typing import Any, Tuple, List, Dict
 import torch
 from torch import nn
@@ -34,8 +33,20 @@ def accuracy_fn(y_true, y_pred):
 
 def forward_pass(model: nn.Module, features: torch.Tensor, model_type: str, device, memory_format: torch.memory_format = None) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
     """
-    Performs a single forward_pass of the `features` through the `model`
-    returns: logits, prob, pred.
+    Performs a single forward pass of the features through the model.
+
+    Args:
+        model (nn.Module): The neural network model to perform the forward pass.
+        features (torch.Tensor): The input features to be passed through the model.
+        model_type (str): Type of the model, one of ['binary', 'multiclass', 'multilabel'].
+        device: Device on which to perform the forward pass (e.g., 'cpu', 'cuda').
+        memory_format (torch.memory_format, optional): Memory format for tensors. One of [torch.contiguous_format, torch.channels_last]. Defaults to None.
+
+    Returns:
+        Tuple[torch.Tensor, torch.Tensor, torch.Tensor]: A tuple containing logits, probabilities, and predictions.
+
+    Raises:
+        ValueError: If the model_type or memory_format is invalid.
     """
     valid_model_types = ['binary', 'multiclass', 'multilabel']
     valid_memory_formats = [torch.contiguous_format, torch.channels_last]
@@ -62,6 +73,28 @@ def forward_pass(model: nn.Module, features: torch.Tensor, model_type: str, devi
 
 
 def eval_model(model: nn.Module, model_type: str, criterion, device, num_classes:int = 2, test_dataloader: DataLoader = None, X_test: torch.Tensor = None, y_test: torch.Tensor = None, memory_format: torch.memory_format = None, metrics:str = 'default', model_name:str = None) -> Dict[str, Any]:
+   """
+    Evaluates the model on the given test data and extracts meaningful metrics on the model's performance such as Accuracy and AUROC.
+
+    Args:
+        model (nn.Module): The neural network model to be evaluated.
+        model_type (str): Type of the model, one of ['binary', 'multiclass', 'multilabel'].
+        criterion: Loss function used for evaluation.
+        device: Device on which to perform evaluation (e.g., 'cpu', 'cuda').
+        num_classes (int, optional): Number of classes in the dataset. Default is 2 (for binary classification).
+        test_dataloader (DataLoader, optional): DataLoader for testing data. Defaults to None.
+        X_test (torch.Tensor, optional): Testing data tensor. Defaults to None.
+        y_test (torch.Tensor, optional): Testing labels tensor. Defaults to None.
+        memory_format (torch.memory_format, optional): Memory format for tensors. One of [torch.channels_last, torch.contiguous_format]. Defaults to None.
+        metrics (str, optional): Metrics to calculate. Either 'default' to calculate Loss and Accuracy only or 'all' for additional metrics like AUROC. Defaults to 'default'.
+        model_name (str, optional): Name of the model. Defaults to None.
+
+    Returns:
+        Dict[str, Any]: A dictionary containing the model's name and the metrics obtained from evaluating the model.
+
+    Raises:
+        ValueError: If the model_type or metrics value is invalid.
+    """
     model_name = model_name if model_name is not None else model.__class__.__name__
     model_type, metrics = model_type.lower(), metrics.lower()
     valid_model_types = ['binary', 'multiclass', 'multilabel']
@@ -117,6 +150,27 @@ def eval_model(model: nn.Module, model_type: str, criterion, device, num_classes
 
 
 def train_step(model: nn.Module, model_type: str, criterion, optimizer: torch.optim.Optimizer, verbose: bool, device, train_dataloader: DataLoader = None, X_train: torch.Tensor = None, y_train: torch.Tensor = None, memory_format: torch.memory_format=None) -> Dict[str, Any]:
+      """
+    Performs a single training step on the model using the given DataLoader or training tensors and returns the training loss and accuracy.
+
+    Args:
+        model (nn.Module): The neural network model to be trained.
+        model_type (str): Type of the model, one of ['binary', 'multiclass', 'multilabel'].
+        criterion: Loss function used for training.
+        optimizer (torch.optim.Optimizer): Optimizer used for training.
+        verbose (bool): Verbosity level (True = detailed, False = silent).
+        device: Device on which to perform training (e.g., 'cpu', 'cuda').
+        train_dataloader (DataLoader, optional): DataLoader for training data. Defaults to None.
+        X_train (torch.Tensor, optional): Training data tensor. Defaults to None.
+        y_train (torch.Tensor, optional): Training labels tensor. Defaults to None.
+        memory_format (torch.memory_format, optional): Memory format for tensors. One of [torch.channels_last, torch.contiguous_format]. Defaults to None.
+
+    Returns:
+        Dict[str, Any]: A dictionary containing the training loss and accuracy.
+
+    Raises:
+        ValueError: If the model_type is invalid or if the training data type is invalid.
+    """
     model_type = model_type.lower()
     valid_model_types = ['binary', 'multiclass', 'multilabel']
     if model_type not in valid_model_types:
@@ -165,6 +219,25 @@ def train_step(model: nn.Module, model_type: str, criterion, optimizer: torch.op
 
 
 def fit_model(epochs: int, model: nn.Module, model_type: str, criterion, optimizer: torch.optim.Optimizer, verbose:int, device, train_dataloader: DataLoader = None, X_train: torch.Tensor = None, y_train: torch.Tensor = None, memory_format: torch.memory_format = None) -> Dict[str, List]:
+   """
+    Trains a neural network model for a specified number of epochs.
+
+    Args:
+        epochs (int): Number of epochs to train the model.
+        model (nn.Module): The neural network model to be trained.
+        model_type (str): Type of the model (e.g., 'multiclass', 'binary', 'multilabel').
+        criterion: Loss function used for training.
+        optimizer (torch.optim.Optimizer): Optimizer used for training.
+        verbose (int): Verbosity level (0 = silent, 1 = progress, 2 = detailed).
+        device: Device on which to perform training (e.g., 'cpu', 'cuda').
+        train_dataloader (DataLoader, optional): DataLoader for training data. Defaults to None.
+        X_train (torch.Tensor, optional): Training data tensor. Defaults to None.
+        y_train (torch.Tensor, optional): Training labels tensor. Defaults to None.
+        memory_format (torch.memory_format, optional): Memory format for tensors (e.g 'torch.channels_last', 'torch.contiguous_format'). Defaults to None.
+
+    Returns:
+        Dict[str, List]: Dictionary containing training loss and accuracy history.
+    """
     print_intervals = ceil(epochs/10)
     model_type = model_type.lower()
     model.train()
@@ -190,9 +263,17 @@ def fit_model(epochs: int, model: nn.Module, model_type: str, criterion, optimiz
 
 
 def combine_metrics_dicts(metrics_dicts: List)->Dict[str, Any]:
-    """Combines individual dictionaries (which have been put into a single `List`) containing any number of metrics into a single dictionary.
-    Args: `metrics_dicts` a list containing dictionaries which all have same keys: the metrics.
-    Returns: a single `Dict[metric, List[value]]` which contains individual metric with all the values of the metrics combined.
+    """
+    Combines individual dictionaries (which have been put into a single `List`) containing any number of metrics into a single dictionary.
+
+    Args:
+        metrics_dicts (List): A list containing dictionaries which all have the same keys: the metrics.
+
+    Returns:
+        Dict[str, Any]: A single dictionary where each key is a metric and the value is a list of all values for that metric combined from the input dictionaries.
+
+    Raises:
+        ValueError: If a metric in any of the input dictionaries does not match the expected metrics.
     """
     metrics_dict = {metric:[] for metric in metrics_dicts[0].keys()}
     for i in range(len(metrics_dicts)):
@@ -205,8 +286,34 @@ def combine_metrics_dicts(metrics_dicts: List)->Dict[str, Any]:
 
 
 def train_and_test_model(epochs: int, model: nn.Module, model_type: str, num_classes:int, criterion:nn.Module, optimizer: torch.optim.Optimizer, verbose:bool, device, model_name: str = None, train_dataloader: DataLoader = None, test_dataloader: DataLoader = None,X_train: torch.Tensor = None, y_train: torch.Tensor = None, X_test: torch.Tensor = None, y_test: torch.Tensor = None, memory_format: torch.memory_format = None, metrics: str = 'default', checkpoint_path = "C:/dev/model_checkpoints") -> Tuple[Dict, Dict]:
-    """Returns: Two dictionaries `train_metrics_history` and `test_metrics_history` each containing the train and test metrics of the model respectively.
-    Prints the train and test metrics after each epoch if `verbose` is set to 2.
+    """
+    Trains and tests a neural network model for a specified number of epochs.
+
+    Args:
+        epochs (int): Number of epochs to train the model.
+        model (nn.Module): The neural network model to be trained and tested.
+        model_type (str): Type of the model (e.g., 'binary', 'multiclass', 'multilabel').
+        num_classes (int): Number of classes for classification.
+        criterion (nn.Module): Loss function used for training and testing.
+        optimizer (torch.optim.Optimizer): Optimizer used for training.
+        verbose (bool): Verbosity level (False = silent, True = detailed).
+        device: Device on which to perform training and testing (e.g., 'cpu', 'cuda').
+        model_name (str, optional): Name of the model. Defaults to None.
+        train_dataloader (DataLoader, optional): DataLoader for training data. Defaults to None.
+        test_dataloader (DataLoader, optional): DataLoader for testing data. Defaults to None.
+        X_train (torch.Tensor, optional): Training data tensor. Defaults to None.
+        y_train (torch.Tensor, optional): Training labels tensor. Defaults to None.
+        X_test (torch.Tensor, optional): Testing data tensor. Defaults to None.
+        y_test (torch.Tensor, optional): Testing labels tensor. Defaults to None.
+        memory_format (torch.memory_format, optional): Memory format for tensors (e.g 'torch.channels_last', 'torch.contiguous_format'). Defaults to None.
+        metrics (str, optional): Metrics to evaluate (e.g 'default' for Loss and Accuracy metrics only, 'all' for additional metrics like AUROC). Defaults to 'default'.
+        checkpoint_path (str, optional): Path to save model checkpoints. Defaults to "C:/dev/model_checkpoints".
+
+    Returns:
+        Tuple[Dict, Dict]: Two dictionaries containing the training and testing metrics history, respectively.
+
+    Raises:
+        ValueError: If the checkpoint path is not acceptable.
     """
     model_name = model_name if model_name is not None else model.__class__.__name__
     train_metrics_list = []
@@ -261,6 +368,17 @@ def train_and_test_model(epochs: int, model: nn.Module, model_type: str, num_cla
 
 
 def plot_metrics_history(train_metrics_dict, test_metrics_dict, comment: str = None):
+       """
+    Plots the training and testing metrics history.
+
+    Args:
+        train_metrics_dict (dict): Dictionary containing training metrics history.
+        test_metrics_dict (dict): Dictionary containing testing metrics history.
+        comment (str, optional): Comment to be added as the title of the plot. Defaults to None.
+
+    Returns:
+        None
+    """
     train_metrics = list(train_metrics_dict.keys())
     test_metrics = list(test_metrics_dict.keys())
     plt.figure(figsize=(12,6))
@@ -277,6 +395,15 @@ def plot_metrics_history(train_metrics_dict, test_metrics_dict, comment: str = N
 
 
 def compare_models(*model_metrics) -> pd.DataFrame:
+   """
+    Compares multiple models by creating a DataFrame from their metrics.
+
+    Args:
+        *model_metrics: Variable length argument list of dictionaries, each containing metrics for a model.
+
+    Returns:
+        pd.DataFrame: A DataFrame where each row represents a model and each column represents a metric. The DataFrame is indexed by the model names.
+    """
     compare_models_df = pd.DataFrame(model_metrics, columns=model_metrics[0].keys())
     compare_models_df.set_index('Model_name', inplace=True)
     return compare_models_df
