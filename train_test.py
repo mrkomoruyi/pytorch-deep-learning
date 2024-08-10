@@ -73,7 +73,7 @@ def forward_pass(model: nn.Module, features: torch.Tensor, model_type: str, devi
 
 
 def eval_model(model: nn.Module, model_type: str, criterion, device, num_classes:int = 2, test_dataloader: DataLoader = None, X_test: torch.Tensor = None, y_test: torch.Tensor = None, memory_format: torch.memory_format = None, metrics:str = 'default', model_name:str = None) -> Dict[str, Any]:
-   """
+    """
     Evaluates the model on the given test data and extracts meaningful metrics on the model's performance such as Accuracy and AUROC.
 
     Args:
