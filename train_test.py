@@ -150,7 +150,7 @@ def eval_model(model: nn.Module, model_type: str, criterion, device, num_classes
 
 
 def train_step(model: nn.Module, model_type: str, criterion, optimizer: torch.optim.Optimizer, verbose: bool, device, train_dataloader: DataLoader = None, X_train: torch.Tensor = None, y_train: torch.Tensor = None, memory_format: torch.memory_format=None) -> Dict[str, Any]:
-      """
+    """
     Performs a single training step on the model using the given DataLoader or training tensors and returns the training loss and accuracy.
 
     Args:
@@ -219,7 +219,7 @@ def train_step(model: nn.Module, model_type: str, criterion, optimizer: torch.op
 
 
 def fit_model(epochs: int, model: nn.Module, model_type: str, criterion, optimizer: torch.optim.Optimizer, verbose:int, device, train_dataloader: DataLoader = None, X_train: torch.Tensor = None, y_train: torch.Tensor = None, memory_format: torch.memory_format = None) -> Dict[str, List]:
-   """
+    """
     Trains a neural network model for a specified number of epochs.
 
     Args:
@@ -368,7 +368,7 @@ def train_and_test_model(epochs: int, model: nn.Module, model_type: str, num_cla
 
 
 def plot_metrics_history(train_metrics_dict, test_metrics_dict, comment: str = None):
-       """
+    """
     Plots the training and testing metrics history.
 
     Args:
@@ -395,7 +395,7 @@ def plot_metrics_history(train_metrics_dict, test_metrics_dict, comment: str = N
 
 
 def compare_models(*model_metrics) -> pd.DataFrame:
-   """
+    """
     Compares multiple models by creating a DataFrame from their metrics.
 
     Args:
@@ -407,4 +407,3 @@ def compare_models(*model_metrics) -> pd.DataFrame:
     compare_models_df = pd.DataFrame(model_metrics, columns=model_metrics[0].keys())
     compare_models_df.set_index('Model_name', inplace=True)
     return compare_models_df
-
