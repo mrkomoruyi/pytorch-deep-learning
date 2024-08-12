@@ -68,7 +68,7 @@ def forward_pass(model: nn.Module, features: torch.Tensor, model_type: str, devi
     elif model_type == 'multilabel':
         print('Forward pass for multilabel model not yet made!')
 
-    return logits, prob, pred
+    return logits.squeeze(), prob, pred
 
 
 
