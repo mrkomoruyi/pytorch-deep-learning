@@ -62,9 +62,9 @@ def forward_pass(model: nn.Module, features: torch.Tensor, model_type: str, devi
         prob = torch.sigmoid(logits)
         pred = torch.round(prob)
     elif model_type == 'multiclass':
-        logits = model(features)
-        prob = logits.softmax(dim=1)
-        pred = torch.argmax(prob, dim=1)
+        logits = model(features).squeeze()
+        prob = logits.softmax(dim=1) if logits.ndim !=1 else logits.softmax(dim=0)
+        pred = torch.argmax(prob, dim=1) if logits.ndim !=1 else torch.argmax(prob, dim=0) 
     elif model_type == 'multilabel':
         print('Forward pass for multilabel model not yet made!')
 
